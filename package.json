@@ -1,5 +1,5 @@
 {
-  "name": "express-version-request",
+  "name": "@localnerve/express-version-request",
   "version": "2.0.0",
   "description": "versions an incoming request to Express based on header or URL",
   "main": "index.js",

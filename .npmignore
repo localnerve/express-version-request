@@ -1,0 +1,5 @@
+.editorconfig
+.github
+eslint.config.js
+test/
+coverage/
