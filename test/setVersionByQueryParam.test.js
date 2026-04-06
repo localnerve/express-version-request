@@ -1,153 +1,154 @@
-'use strict'
+import { describe, it, beforeEach } from 'node:test';
+import assert from 'node:assert/strict';
+import versionRequest from '../index.js'
 
-const test = require('ava')
-const versionRequest = require('../index')
-const sinon = require('sinon')
+describe('setVersionByQueryParam', () => {
+  const context = {};
 
-test.beforeEach(t => {
-  t.context.req = {
-    query: {}
-  }
-})
+  beforeEach(() => {
+    context.req = {
+      query: {}
+    };
+  });
 
-test('dont set a version if req object is not well composed: req is null', t => {
-  t.context.req = null
-  const middleware = versionRequest.setVersionByQueryParam()
+  it('dont set a version if req object is not well composed: req is null', () => {
+    context.req = null;
+    const middleware = versionRequest.setVersionByQueryParam();
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req, null)
-    t.throws(function () {
-      return t.context.req.version
-    })
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req, null);
+      assert.throws(function () {
+        return context.req.version;
+      });
+    });
+  });
 
-test('dont set a version if req object is not well composed: req is undefined', t => {
-  t.context.req = undefined
-  const middleware = versionRequest.setVersionByQueryParam()
+  it('dont set a version if req object is not well composed: req is undefined', () => {
+    context.req = undefined;
+    const middleware = versionRequest.setVersionByQueryParam();
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req, undefined)
-    t.throws(function () {
-      return t.context.req.version
-    })
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req, undefined);
+      assert.throws(function () {
+        return context.req.version;
+      });
+    });
+  });
 
-test('dont set a version if req object is not well composed: req.query is undefined', t => {
-  t.context.req.query = undefined
-  const middleware = versionRequest.setVersionByQueryParam()
+  it('dont set a version if req object is not well composed: req.query is undefined', () => {
+    context.req.query = undefined;
+    const middleware = versionRequest.setVersionByQueryParam();
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.query, undefined)
-    t.is(t.context.req.version, undefined)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.query, undefined);
+      assert.strictEqual(context.req.version, undefined);
+    });
+  });
 
-test('dont set a version if no version query is set', t => {
-  t.context.req.query = {}
-  const middleware = versionRequest.setVersionByQueryParam()
+  it('dont set a version if no version query is set', () => {
+    context.req.query = {};
+    const middleware = versionRequest.setVersionByQueryParam();
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, undefined)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, undefined);
+    });
+  });
 
-test('we can set a version on the request object by request query parameters', t => {
-  const versionNumber = '1.0.0'
+  it('we can set a version on the request object by request query parameters', () => {
+    const versionNumber = '1.0.0';
 
-  t.context.req.query['api-version'] = versionNumber
-  const middleware = versionRequest.setVersionByQueryParam()
+    context.req.query['api-version'] = versionNumber;
+    const middleware = versionRequest.setVersionByQueryParam();
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('we can manually set a specific version to be string', t => {
-  const versionNumber = '1.0.0'
+  it('we can manually set a specific version to be string', () => {
+    const versionNumber = '1.0.0';
 
-  t.context.req.query['api-version'] = versionNumber
-  const middleware = versionRequest.setVersionByQueryParam()
+    context.req.query['api-version'] = versionNumber;
+    const middleware = versionRequest.setVersionByQueryParam();
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('we can manually set a specific version to be object', t => {
-  const versionNumber = { myVersion: 'alpha' }
+  it('we can manually set a specific version to be object', () => {
+    const versionNumber = { myVersion: 'alpha' };
 
-  t.context.req.query['api-version'] = versionNumber
-  const middleware = versionRequest.setVersionByQueryParam()
+    context.req.query['api-version'] = versionNumber;
+    const middleware = versionRequest.setVersionByQueryParam();
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, JSON.stringify(versionNumber))
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, JSON.stringify(versionNumber));
+    });
+  });
 
-test('we can set a version on the request object by specifying custom http query param as integer', t => {
-  const versionNumber = 1
-  const versionParamName = 'my-api-version-param'
-  const versionRequestSpy = sinon.spy(versionRequest, 'formatVersion')
+  it('we can set a version on the request object by specifying custom http query param as integer', t => {
+    const versionNumber = 1;
+    const versionParamName = 'my-api-version-param';
+    const versionRequestSpy = t.mock.method(versionRequest, 'formatVersion');
 
-  t.context.req.query[versionParamName] = versionNumber
-  const middleware = versionRequest.setVersionByQueryParam(versionParamName)
+    context.req.query[versionParamName] = versionNumber;
+    const middleware = versionRequest.setVersionByQueryParam(versionParamName);
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, versionNumber + '.0.0')
-    t.is(versionRequestSpy.called, true)
-  })
-  versionRequestSpy.restore()
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, `${versionNumber}.0.0`);
+      assert.strictEqual(versionRequestSpy.mock.callCount(), 1);
+    });
+  });
 
-test('we can set a version on the request object by specifying custom http query param as string', t => {
-  const versionNumber = '1.0.0'
-  const versionParamName = 'my-api-version-param'
+  it('we can set a version on the request object by specifying custom http query param as string', () => {
+    const versionNumber = '1.0.0';
+    const versionParamName = 'my-api-version-param';
 
-  t.context.req.query[versionParamName] = versionNumber
-  const middleware = versionRequest.setVersionByQueryParam(versionParamName)
+    context.req.query[versionParamName] = versionNumber;
+    const middleware = versionRequest.setVersionByQueryParam(versionParamName);
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('we can set a version on the request object by specifying custom http query param by object', t => {
-  const versionNumber = { myVersion: 'alpha' }
-  const versionParamName = 'my-api-version-param'
+  it('we can set a version on the request object by specifying custom http query param by object', () => {
+    const versionNumber = { myVersion: 'alpha' };
+    const versionParamName = 'my-api-version-param';
 
-  t.context.req.query[versionParamName] = versionNumber
-  const middleware = versionRequest.setVersionByQueryParam(versionParamName)
+    context.req.query[versionParamName] = versionNumber;
+    const middleware = versionRequest.setVersionByQueryParam(versionParamName);
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, JSON.stringify(versionNumber))
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, JSON.stringify(versionNumber));
+    });
+  });
 
-test('custom query param should be deleted from req.query after handling it', t => {
-  const versionNumber = '1.0.0'
-  const versionParamName = 'my-api-version-param'
-  const options = {removeQueryParam: true}
+  it('custom query param should be deleted from req.query after handling it', () => {
+    const versionNumber = '1.0.0';
+    const versionParamName = 'my-api-version-param';
+    const options = { removeQueryParam: true };
 
-  t.context.req.query[versionParamName] = versionNumber
-  const middleware = versionRequest.setVersionByQueryParam(versionParamName, options)
+    context.req.query[versionParamName] = versionNumber;
+    const middleware = versionRequest.setVersionByQueryParam(versionParamName, options);
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, versionNumber)
-    t.falsy(t.context.req.query.hasOwnProperty(versionParamName))
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+      assert.ok(!Object.hasOwn(context.req.query, versionParamName));
+    });
+  });
 
-test('default query param should be deleted from req.query after handling it', t => {
-  const versionNumber = '1.0.0'
-  const options = {removeQueryParam: true}
+  it('default query param should be deleted from req.query after handling it', () => {
+    const versionNumber = '1.0.0';
+    const options = { removeQueryParam: true };
 
-  t.context.req.query['api-version'] = versionNumber
-  const middleware = versionRequest.setVersionByQueryParam(null, options)
+    context.req.query['api-version'] = versionNumber;
+    const middleware = versionRequest.setVersionByQueryParam(null, options);
 
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, versionNumber)
-    t.falsy(t.context.req.query.hasOwnProperty('api-version'))
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+      assert.ok(!Object.hasOwn(context.req.query, 'api-version'));
+    });
+  });
+});
