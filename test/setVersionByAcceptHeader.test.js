@@ -1,187 +1,187 @@
-'use strict'
+import { describe, it, beforeEach } from 'node:test';
+import assert from 'node:assert/strict';
+import versionRequest from '../index.js'
 
-const test = require('ava')
-const versionRequest = require('../index')
-const sinon = require('sinon')
+describe('setVersionByAcceptHeader', () => {
+  const context = {};
 
-test.beforeEach(t => {
-  t.context.req = {
-    headers: {}
-  }
-})
+  beforeEach(() => {
+    context.req = {
+      headers: {}
+    };
+  });
 
-test('we can set the version using the Accept header version field', t => {
-  const versionNumber = '1.0.0'
+  it('we can set the version using the Accept header version field', () => {
+    const versionNumber = '1.0.0';
 
-  t.context.req.headers['accept'] = 'application/vnd.company+json;version=' + versionNumber
-  const middleware = versionRequest.setVersionByAcceptHeader()
+    context.req.headers['accept'] = `application/vnd.company+json;version=${versionNumber}`;
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('we can set the version using the Accept header version field, even if we have multiple parameters', t => {
-  const versionNumber = '1.0.0'
+  it('we can set the version using the Accept header version field, even if we have multiple parameters', () => {
+    const versionNumber = '1.0.0';
 
-  t.context.req.headers['accept'] = 'application/vnd.company+json;param1=1,version=' + versionNumber + ', param3=3'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+    context.req.headers['accept'] = `application/vnd.company+json;param1=1,version=${versionNumber}, param3=3`;
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('we can set the version using the Accept header version field, even if it has funky whitespaces', t => {
-  const versionNumber = '1.0.0'
+  it('we can set the version using the Accept header version field, even if it has funky whitespaces', () => {
+    const versionNumber = '1.0.0';
 
-  t.context.req.headers['accept'] = 'application/vnd.company+json; param1=1,      version =' + versionNumber + '  , param3=3'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+    context.req.headers['accept'] = `application/vnd.company+json; param1=1,      version =${versionNumber}  , param3=3`;
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('we can set the version using the Accept header version field, even if it mixes lower- and uppercase characters', t => {
-  const versionNumber = '1.0.0'
+  it('we can set the version using the Accept header version field, even if it mixes lower- and uppercase characters', () => {
+    const versionNumber = '1.0.0';
 
-  t.context.req.headers['accept'] = 'application/vnd.company+json; param1=1,      Version =' + versionNumber + '  , param3=3'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+    context.req.headers['accept'] = `application/vnd.company+json; param1=1,      Version =${versionNumber}  , param3=3`;
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('dont set the version if the Accept header has no "version" parameter', t => {
-  t.context.req.headers['accept'] = 'application/vnd.company+json;param1=1, param2=2'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+  it('dont set the version if the Accept header has no "version" parameter', () => {
+    context.req.headers['accept'] = 'application/vnd.company+json;param1=1, param2=2';
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, undefined)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, undefined);
+    });
+  });
 
-test('dont set the version if the Accept header has no parameters at all', t => {
-  t.context.req.headers['accept'] = 'application/vnd.company+json;'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+  it('dont set the version if the Accept header has no parameters at all', () => {
+    context.req.headers['accept'] = 'application/vnd.company+json;';
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, undefined)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, undefined);
+    });
+  });
 
-test('dont set the version if the Accept header has no parameters at all (without ending ;)', t => {
-  t.context.req.headers['accept'] = 'application/vnd.company+json'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+  it('dont set the version if the Accept header has no parameters at all (without ending ;)', () => {
+    context.req.headers['accept'] = 'application/vnd.company+json';
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, undefined)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, undefined);
+    });
+  });
 
-test('dont set the version if the Accept header if we cant parse it', t => {
-  t.context.req.headers['accept'] = 'application/json;abd'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+  it('dont set the version if the Accept header if we cant parse it', () => {
+    context.req.headers['accept'] = 'application/json;abd';
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, undefined)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, undefined);
+    });
+  });
 
-test('dont set the version if the Accept header if we cant parse it', t => {
-  t.context.req.headers['accept'] = 42
-  const middleware = versionRequest.setVersionByAcceptHeader()
+  it('dont set the version if the Accept header if we cant parse it', () => {
+    context.req.headers['accept'] = 42;
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, undefined)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, undefined);
+    });
+  });
 
-//  Alternative format
-test('we can set the version using the Accept header alternative format 1', t => {
-  const versionNumber = '1.0.0'
+  //  Alternative format
+  it('we can set the version using the Accept header alternative format 1', () => {
+    const versionNumber = '1.0.0';
 
-  t.context.req.headers['accept'] = 'application/vnd.company-v' + versionNumber + '+json'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+    context.req.headers['accept'] = `application/vnd.company-v${versionNumber}+json`;
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('we can set the version using the Accept header alternative format 2', t => {
-  const versionNumber = '1.0.0'
+  it('we can set the version using the Accept header alternative format 2', () => {
+    const versionNumber = '1.0.0';
 
-  t.context.req.headers['accept'] = 'application/vnd.company.v' + versionNumber + '+json'
-  const middleware = versionRequest.setVersionByAcceptHeader()
+    context.req.headers['accept'] = `application/vnd.company.v${versionNumber}+json`;
+    const middleware = versionRequest.setVersionByAcceptHeader();
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, versionNumber)
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-test('we can set the version using the Accept header alternative format, even if it has whitespaces', t => {
-  const versionNumber = '1.0.0'
+  it('we can set the version using the Accept header alternative format, even if it has whitespaces', () => {
+    const versionNumber = '1.0.0';
 
-  const headers = { accept: 'application/ vnd.company -v' + versionNumber + ' + json' }
-  const resultingVersion = versionRequest.setVersionByAcceptFormat(headers)
+    const headers = { accept: `application/ vnd.company -v${versionNumber} + json` };
+    const resultingVersion = versionRequest.setVersionByAcceptFormat(headers);
 
-  t.deepEqual(resultingVersion, versionNumber)
-})
+    assert.strictEqual(resultingVersion, versionNumber);
+  });
 
-test('dont set the version, if the alternative format is incorrect', t => {
-  const headers = { accept: 'application/ vnd.company -v1.0.0///json' }
-  const resultingVersion = versionRequest.setVersionByAcceptFormat(headers)
+  it('dont set the version, if the alternative format is incorrect', () => {
+    const headers = { accept: 'application/ vnd.company -v1.0.0///json' };
+    const resultingVersion = versionRequest.setVersionByAcceptFormat(headers);
 
-  t.deepEqual(resultingVersion, undefined)
-})
+    assert.strictEqual(resultingVersion, undefined);
+  });
 
-//  Custom function
+  //  Custom function
+  it('we can set the version using a custom function to parse the Accept header', () => {
+    const versionNumber = '1.0.0';
 
-test('we can set the version using a custom function to parse the Accept header', t => {
-  const versionNumber = '1.0.0'
+    context.req.headers['accept'] = versionNumber;
+    const middleware = versionRequest.setVersionByAcceptHeader(v => v);
 
-  t.context.req.headers['accept'] = versionNumber
-  const middleware = versionRequest.setVersionByAcceptHeader(v => v)
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, versionNumber);
+    });
+  });
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, versionNumber)
-  })
-})
+  it('we can handle, if the custom function returns a number', t => {
+    const versionNumber = '1.1';
+    const versionRequestSpy = t.mock.method(versionRequest, 'formatVersion');
 
-test('we can handle, if the custom function returns a number', t => {
-  const versionNumber = '1.1'
-  const versionRequestSpy = sinon.spy(versionRequest, 'formatVersion')
+    context.req.headers['accept'] = versionNumber;
+    const middleware = versionRequest.setVersionByAcceptHeader(v => parseFloat(v));
 
-  t.context.req.headers['accept'] = versionNumber
-  const middleware = versionRequest.setVersionByAcceptHeader(v => parseFloat(v))
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, `${versionNumber}.0`);
+      assert.strictEqual(versionRequestSpy.mock.callCount(), 1);
+    });
+  });
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, versionNumber + '.0')
-    t.is(versionRequestSpy.called, true)
-  })
-  versionRequestSpy.restore()
-})
+  it('we can handle, if the custom function returns a boolean', () => {
+    const versionNumber = true;
 
-test('we can handle, if the custom function returns a boolean', t => {
-  const versionNumber = true
+    context.req.headers['accept'] = versionNumber;
+    const middleware = versionRequest.setVersionByAcceptHeader(() => versionNumber);
 
-  t.context.req.headers['accept'] = versionNumber
-  const middleware = versionRequest.setVersionByAcceptHeader(v => versionNumber)
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, undefined);
+    });
+  });
 
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, undefined)
-  })
-})
+  it('we can handle, if the custom function returns an object', () => {
+    const versionNumber = {alpha: true};
+    context.req.headers['accept'] = 1;
+    const middleware = versionRequest.setVersionByAcceptHeader(() => { return versionNumber });
 
-test('we can handle, if the custom function returns an object', t => {
-  const versionNumber = {alpha: true}
-  t.context.req.headers['accept'] = 1
-  const middleware = versionRequest.setVersionByAcceptHeader(v => { return versionNumber })
-
-  middleware(t.context.req, {}, () => {
-    t.deepEqual(t.context.req.version, JSON.stringify(versionNumber))
-  })
-})
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, JSON.stringify(versionNumber));
+    });
+  });
+});

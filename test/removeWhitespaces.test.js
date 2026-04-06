@@ -1,24 +1,25 @@
-'use strict'
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import versionRequest from '../index.js';
 
-const test = require('ava')
-const versionRequest = require('../index')
+describe('removeWhitespaces', () => {
+  it('removes whitespaces from a string', () => {
+    assert.strictEqual(versionRequest.removeWhitespaces('a  '), 'a');
+  });
 
-test('it removes whitespaces from a string', t => {
-  t.is(versionRequest.removeWhitespaces('a  '), 'a')
-})
+  it('returns the same string if nothing to remove', () => {
+    assert.strictEqual(versionRequest.removeWhitespaces('a'), 'a');
+  });
 
-test('it returns the same string if nothing to remove', t => {
-  t.is(versionRequest.removeWhitespaces('a'), 'a')
-})
+  it('returns empty string if given object', () => {
+    assert.strictEqual(versionRequest.removeWhitespaces({}), '');
+  });
 
-test('it returns empty string if given object', t => {
-  t.is(versionRequest.removeWhitespaces({}), '')
-})
+  it('returns empty string if given number', () => {
+    assert.strictEqual(versionRequest.removeWhitespaces(42), '');
+  });
 
-test('it returns empty string if given number', t => {
-  t.is(versionRequest.removeWhitespaces(42), '')
-})
-
-test('it returns empty string if given array', t => {
-  t.is(versionRequest.removeWhitespaces(['a', 'b']), '')
-})
+  it('returns empty string if given array', () => {
+    assert.strictEqual(versionRequest.removeWhitespaces(['a', 'b']), '');
+  });
+});

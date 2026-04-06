@@ -1,40 +1,38 @@
-'use strict'
-
-class versionRequest {
+export default class VersionRequest {
   static setVersion (version) {
     return (req, res, next) => {
-      req.version = this.formatVersion(version)
-      next()
+      req.version = this.formatVersion(version);
+      next();
     }
   }
 
   static setVersionByHeader (headerName) {
     return (req, res, next) => {
       if (req && req.headers) {
-        const version = (headerName && req.headers[headerName.toLowerCase()]) || req.headers['x-api-version']
-        req.version = this.formatVersion(version)
+        const version = (headerName && req.headers[headerName.toLowerCase()]) || req.headers['x-api-version'];
+        req.version = this.formatVersion(version);
       }
 
-      next()
+      next();
     }
   }
 
   static setVersionByQueryParam (queryParam, options = {removeQueryParam: false}) {
     return (req, res, next) => {
       if (req && req.query) {
-        const version = (queryParam && req.query[queryParam.toLowerCase()]) || req.query['api-version']
+        const version = (queryParam && req.query[queryParam.toLowerCase()]) || req.query['api-version'];
         if (version !== undefined) {
-          req.version = this.formatVersion(version)
+          req.version = this.formatVersion(version);
           if (options && options.removeQueryParam === true) {
             if (queryParam && req.query[queryParam.toLowerCase()]) {
-              delete req.query[queryParam.toLowerCase()]
+              delete req.query[queryParam.toLowerCase()];
             } else {
-              delete req.query['api-version']
+              delete req.query['api-version'];
             }
           }
         }
       }
-      next()
+      next();
     }
   }
 
@@ -42,74 +40,72 @@ class versionRequest {
     return (req, res, next) => {
       if (req && req.headers && req.headers.accept) {
         if (customFunction && typeof customFunction === 'function') {
-          req.version = this.formatVersion(customFunction(req.headers.accept))
+          req.version = this.formatVersion(customFunction(req.headers.accept));
         } else {
-          const acceptHeader = String(req.headers.accept)
-          const params = acceptHeader.split(';')[1]
-          const paramMap = {}
+          const acceptHeader = String(req.headers.accept);
+          const params = acceptHeader.split(';')[1];
+          const paramMap = {};
           if (params) {
-            for (let i of params.split(',')) {
-              const keyValue = i.split('=')
+            for (const i of params.split(',')) {
+              const keyValue = i.split('=');
               if (typeof keyValue === 'object' && keyValue[0] && keyValue[1]) {
-                paramMap[this.removeWhitespaces(keyValue[0]).toLowerCase()] = this.removeWhitespaces(keyValue[1])
+                paramMap[this.removeWhitespaces(keyValue[0]).toLowerCase()] = this.removeWhitespaces(keyValue[1]);
               }
             }
-            req.version = this.formatVersion(paramMap.version)
+            req.version = this.formatVersion(paramMap.version);
           }
 
           if (req.version === undefined) {
-            req.version = this.formatVersion(this.setVersionByAcceptFormat(req.headers))
+            req.version = this.formatVersion(this.setVersionByAcceptFormat(req.headers));
           }
         }
       }
 
-      next()
+      next();
     }
   }
 
   static setVersionByAcceptFormat (headers) {
-    const acceptHeader = String(headers.accept)
-    const header = this.removeWhitespaces(acceptHeader)
-    let start = header.indexOf('-v')
+    const acceptHeader = String(headers.accept);
+    const header = this.removeWhitespaces(acceptHeader);
+    let start = header.indexOf('-v');
     if (start === -1) {
-      start = header.indexOf('.v')
+      start = header.indexOf('.v');
     }
-    const end = header.indexOf('+')
+    const end = header.indexOf('+');
     if (start !== -1 && end !== -1) {
-      return header.slice(start + 2, end)
+      return header.slice(start + 2, end);
     }
   }
 
   static removeWhitespaces (str) {
     if (typeof str === 'string') {
-      return str.replace(/\s/g, '')
+      return str.replace(/\s/g, '');
     }
 
-    return ''
+    return '';
   }
 
   static formatVersion (version) {
     if (!version || typeof version === 'function' || version === true) {
-      return undefined
+      return undefined;
     }
     if (typeof version === 'object') {
-      return JSON.stringify(version)
+      return JSON.stringify(version);
     }
-    let ver = version.toString()
-    let split = ver.split('.')
+    let ver = version.toString();
+    const split = ver.split('.');
     if (split.length === 3) {
-      return ver
+      return ver;
     }
     if (split.length < 3) {
       for (let i = split.length; i < 3; i++) {
-        ver += '.0'
+        ver += '.0';
       }
-      return ver
+      return ver;
     }
     if (split.length > 3) {
-      return split.slice(0, 3).join('.')
+      return split.slice(0, 3).join('.');
     }
   }
 }
-
-module.exports = versionRequest

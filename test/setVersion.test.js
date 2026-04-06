@@ -1,40 +1,40 @@
-'use strict'
+import { describe, it, beforeEach } from 'node:test';
+import assert from 'node:assert/strict';
+import versionRequest from '../index.js'
 
-const test = require('ava')
-const versionRequest = require('../index')
-const sinon = require('sinon')
+describe('setVersion', () => {
+  const context = { req: {} };
 
-test.beforeEach(t => {
-  t.context.req = {}
-})
+  beforeEach(() => {
+    context.req = {};
+  });
 
-test('we can manually set a specific version to be integer', t => {
-  const versionNumber = 1
-  const versionRequestSpy = sinon.spy(versionRequest, 'formatVersion')
+  it('we can manually set a specific version to be integer', t => {
+    const versionNumber = 1;
+    const versionRequestSpy = t.mock.method(versionRequest, 'formatVersion');
 
-  const middleware = versionRequest.setVersion(versionNumber)
-  middleware(t.context.req, {}, () => {
-    t.is(t.context.req.version, versionNumber + '.0.0')
-    t.is(versionRequestSpy.called, true)
-  })
+    const middleware = versionRequest.setVersion(versionNumber);
+    middleware(context.req, {}, () => {
+      assert.strictEqual(context.req.version, `${versionNumber}.0.0`);
+      assert.strictEqual(versionRequestSpy.mock.callCount(), 1);
+    });
+  });
 
-  versionRequestSpy.restore()
-})
+  it('we can manually set a specific version to be string', () => {
+    const versionNumber = '1.0.0';
 
-test('we can manually set a specific version to be string', t => {
-  const versionNumber = '1.0.0'
+    const middleware = versionRequest.setVersion(versionNumber);
+    middleware(context.req, {}, () => {
+      assert.strictEqual(versionNumber, context.req.version);
+    });
+  });
 
-  const middleware = versionRequest.setVersion(versionNumber)
-  middleware(t.context.req, {}, () => {
-    t.is(versionNumber, t.context.req.version)
-  })
-})
+  it('we can manually set a specific version to be object', () => {
+    const versionNumber = { myVersion: 'alpha' };
 
-test('we can manually set a specific version to be object', t => {
-  const versionNumber = { myVersion: 'alpha' }
-
-  const middleware = versionRequest.setVersion(versionNumber)
-  middleware(t.context.req, {}, () => {
-    t.is(JSON.stringify(versionNumber), t.context.req.version)
-  })
-})
+    const middleware = versionRequest.setVersion(versionNumber);
+    middleware(context.req, {}, () => {
+      assert.strictEqual(JSON.stringify(versionNumber), context.req.version);
+    });
+  });
+});
