@@ -79,13 +79,13 @@ describe('setVersionByHeader', () => {
   });
 
   it('we can manually set a specific version to be object', () => {
-    const versionNumber = { myVersion: 'alpha' };
+    const versionNumber = { version: 'alpha' };
 
     context.req.headers['x-api-version'] = versionNumber;
     const middleware = versionRequest.setVersionByHeader();
 
     middleware(context.req, {}, () => {
-      assert.strictEqual(context.req.version, JSON.stringify(versionNumber));
+      assert.strictEqual(context.req.version.label, versionNumber.version);
     });
   });
 
@@ -116,14 +116,14 @@ describe('setVersionByHeader', () => {
   });
 
   it('we can set a version on the request object by specifying custom http header by object', () => {
-    const versionNumber = { myVersion: 'alpha' };
+    const versionNumber = { version: 'alpha' };
     const versionHeaderName = 'my-api-version-header';
 
     context.req.headers[versionHeaderName] = versionNumber;
     const middleware = versionRequest.setVersionByHeader(versionHeaderName);
 
     middleware(context.req, {}, () => {
-      assert.strictEqual(context.req.version, JSON.stringify(versionNumber));
+      assert.strictEqual(context.req.version.label, versionNumber.version);
     });
   });
 });

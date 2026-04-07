@@ -77,13 +77,13 @@ describe('setVersionByQueryParam', () => {
   });
 
   it('we can manually set a specific version to be object', () => {
-    const versionNumber = { myVersion: 'alpha' };
+    const versionNumber = { version: 'alpha' };
 
     context.req.query['api-version'] = versionNumber;
     const middleware = versionRequest.setVersionByQueryParam();
 
     middleware(context.req, {}, () => {
-      assert.strictEqual(context.req.version, JSON.stringify(versionNumber));
+      assert.strictEqual(context.req.version.label, versionNumber.version);
     });
   });
 
@@ -114,14 +114,14 @@ describe('setVersionByQueryParam', () => {
   });
 
   it('we can set a version on the request object by specifying custom http query param by object', () => {
-    const versionNumber = { myVersion: 'alpha' };
+    const versionNumber = { version: 'alpha' };
     const versionParamName = 'my-api-version-param';
 
     context.req.query[versionParamName] = versionNumber;
     const middleware = versionRequest.setVersionByQueryParam(versionParamName);
 
     middleware(context.req, {}, () => {
-      assert.strictEqual(context.req.version, JSON.stringify(versionNumber));
+      assert.strictEqual(context.req.version.label, versionNumber.version);
     });
   });
 
