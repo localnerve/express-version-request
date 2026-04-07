@@ -1,6 +1,6 @@
 {
   "name": "@localnerve/express-version-request",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "versions an incoming request to Express based on header or URL",
   "main": "index.js",
   "type": "module",
@@ -21,15 +21,18 @@
     "header"
   ],
   "author": "Liran Tal",
+  "maintainers": [
+    "Alex Grant <alex@localnerve.com> (https://localnerve.com/)"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lirantal/express-version-request.git"
+    "url": "git+https://github.com/localnerve/express-version-request.git"
   },
   "bugs": {
-    "url": "https://github.com/lirantal/express-version-request/issues"
+    "url": "https://github.com/localnerve/express-version-request/issues"
   },
-  "homepage": "https://github.com/lirantal/express-version-request#readme",
+  "homepage": "https://github.com/localnerve/express-version-request#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "globals": "17.4.0",
