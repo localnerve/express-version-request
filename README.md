@@ -1,4 +1,4 @@
-# express-version-request
+# @localnerve/express-version-request
 
 > Maintained, modernized fork of lirantal/express-version-request
 
@@ -19,7 +19,7 @@ This npm package provides an ExpressJS middleware that sets the request object w
 If you wish to employ your own logic in some middleware/configuration and set the request version programmaticaly and not by parsing a specific HTTP header:
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 
 app.use(versionRequest.setVersion('1.2.3'));
 ```
@@ -31,7 +31,7 @@ Then in later middlewares you will be able to access `req.version` property and 
 By default, the library will parse the version out of the `X-Api-Version` HTTP header:
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 
 app.use(versionRequest.setVersionByHeader());
 ```
@@ -41,7 +41,7 @@ app.use(versionRequest.setVersionByHeader());
 If you wish to advise the library which HTTP header to parse to extract the version:
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 
 app.use(versionRequest.setVersionByHeader('My-HTTP-Header-Name'));
 ```
@@ -51,7 +51,7 @@ app.use(versionRequest.setVersionByHeader('My-HTTP-Header-Name'));
 By default, the library will parse the version out of the `api-version` query parameter:
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 
 app.use(versionRequest.setVersionByQueryParam());
 ```
@@ -61,22 +61,33 @@ app.use(versionRequest.setVersionByQueryParam());
 If you wish to advise the library which query parameter to parse to extract the version:
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 
 app.use(versionRequest.setVersionByQueryParam('myQueryParam'));
 ```
 #### setVersionByQueryParam options 
 The second parameter of `setVersionByQueryParam` is an options object.
 
+* `removeQueryParam` - default false; **true** to remove the query parameter from the Request
+
+```js
+import versionRequest from '@localnerve/express-version-request';
+
+// Consume myQueryParam after setting the version from it
+app.use(versionRequest.setVersionByQueryParam('myQueryParam', {
+  removeQueryParam: true
+}));
+```
+
 ### Set request version by 'Accept' header
 
 By default, the library will parse the version from the Accept header, expecting the following format:
 **Accept: application/vnd.company+json;version=1.0.0**
-For more details about the Accept header format, please refer to the [RFC](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html).
+For more details about the Accept header format, please refer to the [RFC 2616](https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html), [superseded 9110](https://www.rfc-editor.org/rfc/rfc9110.html).
 
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 
 app.use(versionRequest.setVersionByAcceptHeader());
 ```
@@ -89,11 +100,12 @@ or
 
 **Accept: application/vnd.comapny.v1.0.0+json**
 
-The lib will try to parse the header using the default format, and if it doesn't succeed, tries this alternative format.
+The lib will try to parse the header using the default format, and if it doesn't succeed, tries this alternative format. Multiple headers and quality `q=0.8` attributes are now supported. Per the RFC, default quality is `1.0` (highest). The version is selected by the highest quality preference and then order precendence rules to break ties (highest quality, then order wins).
+
 The usage is the same as in the case of the regular format:
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 
 app.use(versionRequest.setVersionByAcceptHeader());
 ```
@@ -103,7 +115,7 @@ The lib will then call it with the actual value of the Accept header as the firs
 The provided function should return a **string**.
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 function customParsingFunction(header) {
 	// function body, that parses the header parameter and returns a string
 }
@@ -119,7 +131,7 @@ Before setting the version, it is always formatted, so the resulting version is 
 
 This formatting function is called automatically for each version setting method, but it can also be used independently:
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 const formattedVersion = versionRequest.formatVersion(versionThatNeedsFormatting);
 ```
 ##### Options
@@ -130,7 +142,7 @@ Delete version HTTP query parameter after setting the request object with a `ver
 By default it is set to false.
 
 ```js
-import versionRequest from 'express-version-request';
+import versionRequest from '@localnerve/express-version-request';
 const options = { removeQueryParam: true };
 
 app.use(versionRequest.setVersionByQueryParam('myQueryParam', options));
