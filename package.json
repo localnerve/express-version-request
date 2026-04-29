@@ -1,13 +1,15 @@
 {
   "name": "@localnerve/express-version-request",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "versions an incoming request to Express based on header or URL",
   "main": "index.js",
   "types": "index.d.ts",
   "type": "module",
   "scripts": {
     "lint": "eslint .",
-    "test": "rimraf ./coverage && mkdirp ./coverage && node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info"
+    "lint:audit": "DEBUG=eslint:linter npm run lint 2>&1 | grep \"Linting\"",
+    "pretest": "node -e 'const fs=require(\"fs\");fs.rmSync(\"./coverage\",{recursive:true,force:true});fs.mkdirSync(\"./coverage\",{recursive:true});'",
+    "test": "node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info"
   },
   "keywords": [
     "express",
@@ -36,9 +38,7 @@
   "homepage": "https://github.com/localnerve/express-version-request#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "globals": "17.4.0",
-    "eslint": "^10.2.0",
-    "rimraf": "^6.1.3",
-    "mkdirp": "3.0.1"
+    "globals": "17.5.0",
+    "eslint": "^10.2.1"
   }
 }
